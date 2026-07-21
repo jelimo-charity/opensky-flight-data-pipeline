@@ -20,5 +20,9 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 
 # Get the OpenSky API base URL from environment variables
-OPENSKY_BASE_URL = os.getenv('OPENSKY_BASE_URL')
+OPENSKY_BASE_URL = os.getenv('opensky_base_url')
+CLIENT_ID = os.getenv('clientId')
+CLIENT_SECRET = os.getenv('clientSecret')
+TOKEN_URL = os.getenv('token_url')
+
 
