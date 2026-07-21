@@ -1,7 +1,7 @@
 
-from extract import get_all_state_vectors
-from load import load_state_vectors
-from db_config import get_db_engine
+from scripts.extract import get_all_state_vectors
+from scripts.load import load_state_vectors
+from scripts.db_config import get_db_engine
 from sqlalchemy import text
 
 engine = get_db_engine()

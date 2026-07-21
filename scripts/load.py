@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy import text
-from db_config import get_db_engine
+from scripts.db_config import get_db_engine
 
 def load_state_vectors(state_vectors):
     engine = get_db_engine()

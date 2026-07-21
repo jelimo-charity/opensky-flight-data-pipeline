@@ -1,7 +1,7 @@
 import requests
 
-from config import OPENSKY_BASE_URL
-from auth import tokens
+from scripts.config import OPENSKY_BASE_URL
+from scripts.auth import tokens
 
 
 def get_all_state_vectors():

@@ -1,5 +1,5 @@
 from sqlalchemy import text
-from db_config import get_db_engine
+from scripts.db_config import get_db_engine
 
 
 def get_distinct_aircraft(limit=200):

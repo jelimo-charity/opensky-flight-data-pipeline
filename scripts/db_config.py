@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from config import (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
+from scripts.config import (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
 
 def get_db_engine():
     """

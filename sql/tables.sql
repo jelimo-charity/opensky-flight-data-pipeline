@@ -24,6 +24,20 @@ CREATE TABLE IF NOT EXISTS bronze.all_state_vectors (
     position_source SMALLINT,
     category SMALLINT,
 
+
+
+    
+CREATE TABLE ingestion_log (
+    id SERIAL PRIMARY KEY,
+    started_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ,
+    snapshot_time TIMESTAMPTZ,
+    rows_loaded INTEGER,
+    status VARCHAR(20),
+    error_message TEXT
+);
     -- Ingestion metadata
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+

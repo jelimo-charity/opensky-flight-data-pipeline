@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timedelta
 
-from config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL
+from scripts.config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL
 
 #refresh the token 30secs before it expires
 TOKEN_REFRESH_MARGIN = 30
