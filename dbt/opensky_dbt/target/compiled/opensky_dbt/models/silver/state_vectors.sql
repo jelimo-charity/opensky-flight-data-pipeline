@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+
 
 -- ============================================================================
 -- Model: silver_state_vectors
@@ -21,7 +21,7 @@
 with state_vectors as (
 
     select *
-    from {{ ref('stg_state_vectors') }}
+    from "opensky_flight_data"."silver"."stg_state_vectors"
 
 )
 

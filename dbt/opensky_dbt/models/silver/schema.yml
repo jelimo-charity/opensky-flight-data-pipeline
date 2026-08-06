@@ -1,0 +1,258 @@
+version: 2
+
+models:
+  - name: stg_state_vectors
+    description: >
+      Cleans and standardizes raw OpenSky aircraft state vector data by
+      trimming text fields, casting columns to appropriate data types,
+      handling null values, validating coordinates, and removing duplicate
+      records. This model serves as the foundation for all downstream Silver
+      models.
+
+    columns:
+      - name: id
+        description: Unique identifier for each aircraft state vector record.
+        tests:
+          - unique
+          - not_null
+
+      - name: icao24
+        description: Unique ICAO 24-bit aircraft identifier.
+        tests:
+          - not_null
+
+      - name: snapshot_time
+        description: Timestamp when the aircraft state was captured.
+        tests:
+          - not_null
+
+      - name: origin_country
+        description: Country associated with the aircraft registration.
+        tests:
+          - not_null
+
+      - name: latitude
+        description: Aircraft latitude in decimal degrees.
+        tests:
+          - not_null
+
+      - name: longitude
+        description: Aircraft longitude in decimal degrees.
+        tests:
+          - not_null
+
+      - name: on_ground
+        description: Indicates whether the aircraft is on the ground.
+        tests:
+          - not_null
+
+  - name: state_vectors
+    description: >
+      The primary enriched aircraft snapshot model that builds on the staging
+      layer by adding derived metrics such as speed and altitude conversions,
+      flight and movement classifications, compass heading, position freshness,
+      and time-based attributes for analytics.
+
+    columns:
+      - name: id
+        description: Unique identifier for each enriched aircraft snapshot.
+        tests:
+          - unique
+          - not_null
+
+      - name: flight_status
+        description: Indicates whether the aircraft is airborne or on the ground.
+        tests:
+          - accepted_values:
+              values: ['Airborne', 'Ground']
+
+      - name: movement_status
+        description: Operational movement classification of the aircraft.
+        tests:
+          - accepted_values:
+              values: ['Parked', 'Taxiing', 'Takeoff/Landing', 'Cruising']
+
+      - name: heading
+        description: Compass direction derived from the aircraft's true track.
+        tests:
+          - accepted_values:
+              values: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+
+      - name: speed_kmh
+        description: Aircraft speed in kilometers per hour.
+        tests:
+          - not_null
+
+      - name: geo_altitude_ft
+        description: Geometric altitude converted to feet.
+
+  - name: silver_aircraft_performance
+    description: >
+      Provides aircraft performance metrics, including speed, altitude,
+      climb and descent rates, heading, and movement status. This model is
+      optimized for flight performance analysis and operational reporting.
+
+    columns:
+      - name: icao24
+        description: Unique ICAO aircraft identifier.
+        tests:
+          - not_null
+
+      - name: speed_kmh
+        description: Aircraft speed in kilometers per hour.
+        tests:
+          - not_null
+
+      - name: heading
+        description: Compass heading of the aircraft.
+
+      - name: movement_status
+        description: Aircraft movement classification.
+
+  - name: silver_aircraft_location
+    description: >
+      Stores cleaned geographic and positional information, including aircraft
+      coordinates, country, position timestamps, and position freshness,
+      supporting mapping, trajectory visualization, and spatial analysis.
+
+    columns:
+      - name: icao24
+        description: Unique ICAO aircraft identifier.
+        tests:
+          - not_null
+
+      - name: latitude
+        description: Aircraft latitude in decimal degrees.
+        tests:
+          - not_null
+
+      - name: longitude
+        description: Aircraft longitude in decimal degrees.
+        tests:
+          - not_null
+
+      - name: position_age_seconds
+        description: Age of the aircraft position report in seconds.
+
+  - name: silver_aircraft_status
+    description: >
+      Captures the operational status of each aircraft, including flight
+      status, movement classification, squawk code, SPI indicator, and other
+      operational attributes used for fleet monitoring and status reporting.
+
+    columns:
+      - name: flight_status
+        description: Indicates whether the aircraft is airborne or on the ground.
+        tests:
+          - accepted_values:
+              values: ['Airborne', 'Ground']
+
+      - name: movement_status
+        description: Operational movement classification.
+        tests:
+          - accepted_values:
+              values: ['Parked', 'Taxiing', 'Takeoff/Landing', 'Cruising']
+
+      - name: squawk
+        description: Four-digit transponder squawk code assigned to the aircraft.
+
+      - name: spi
+        description: Special Position Identification indicator.
+
+  - name: silver_aircraft_latest
+    description: >
+      Maintains only the most recent snapshot for each aircraft by selecting
+      the latest available record based on snapshot time. This model supports
+      real-time aircraft monitoring, fleet status dashboards, and current
+      position reporting.
+
+    columns:
+      - name: icao24
+        description: Unique ICAO aircraft identifier.
+        tests:
+          - unique
+          - not_null
+
+      - name: snapshot_time
+        description: Latest available snapshot timestamp.
+        tests:
+          - not_null
+
+  - name: silver_snapshot_summary
+    description: >
+      Summarizes each snapshot by calculating fleet-level metrics such as
+      total aircraft, airborne and grounded aircraft counts, average speed,
+      average altitude, and the number of reporting countries. This model is
+      designed for time-series monitoring and fleet activity analysis.
+
+    columns:
+      - name: snapshot_time
+        description: Timestamp representing the aggregated snapshot.
+        tests:
+          - unique
+          - not_null
+
+      - name: total_aircraft
+        description: Total number of aircraft in the snapshot.
+        tests:
+          - not_null
+
+      - name: airborne_aircraft
+        description: Number of aircraft currently airborne.
+
+      - name: grounded_aircraft
+        description: Number of aircraft currently on the ground.
+
+  - name: country_statistics
+    description: >
+      Aggregates aircraft activity by origin country, providing summary
+      statistics including aircraft counts, average speed, average altitude,
+      and airborne versus grounded totals for country-level analysis.
+
+    columns:
+      - name: origin_country
+        description: Aircraft origin country.
+        tests:
+          - unique
+          - not_null
+
+      - name: total_aircraft
+        description: Total number of aircraft reported for the country.
+        tests:
+          - not_null
+
+  - name: airborne_flights
+    description: >
+      Contains only aircraft that are currently airborne, providing a focused
+      dataset for flight monitoring, route analysis, and in-flight performance
+      reporting.
+
+    columns:
+      - name: flight_status
+        description: Flight status of the aircraft.
+        tests:
+          - accepted_values:
+              values: ['Airborne']
+
+      - name: icao24
+        description: Unique ICAO aircraft identifier.
+        tests:
+          - not_null
+
+  - name: airport_surface_activity
+    description: >
+      Contains only aircraft that are currently on the ground, supporting
+      airport surface operations, congestion analysis, and ground movement
+      monitoring.
+
+    columns:
+      - name: flight_status
+        description: Flight status of the aircraft.
+        tests:
+          - accepted_values:
+              values: ['Ground']
+
+      - name: icao24
+        description: Unique ICAO aircraft identifier.
+        tests:
+          - not_null

@@ -12,3 +12,4 @@ def ingest_state_vectors():
     load_state_vectors(state_vectors)
 
     print("Finished ingestion.")
+

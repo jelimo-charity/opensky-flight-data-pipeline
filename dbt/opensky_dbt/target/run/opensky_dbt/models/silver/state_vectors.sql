@@ -1,4 +1,14 @@
-{{ config(materialized='table') }}
+
+  
+    
+
+  create  table "opensky_flight_data"."silver"."state_vectors__dbt_tmp"
+  
+  
+    as
+  
+  (
+    
 
 -- ============================================================================
 -- Model: silver_state_vectors
@@ -21,7 +31,7 @@
 with state_vectors as (
 
     select *
-    from {{ ref('stg_state_vectors') }}
+    from "opensky_flight_data"."silver"."stg_state_vectors"
 
 )
 
@@ -160,3 +170,5 @@ last_contact,
     created_at
 
 from state_vectors
+  );
+  
